@@ -1,16 +1,11 @@
-FROM freyrus/base-php7.0
+FROM freyrus/base-php5.6
 
 MAINTAINER gialac <gialacmail@gmail.com>
 
-# Install nodejs
-RUN curl -sL https://deb.nodesource.com/setup_0.12 | sudo -E bash -
-RUN sudo apt-get install -y nodejs libnotify-bin
-RUN npm install -g gulp
-
 # install mongodb driver for php
-RUN pecl install mongodb
-RUN echo "extension=mongodb.so" >> `php --ini | grep "Loaded Configuration" | sed -e "s|.*:\s*||"`
-ADD vhost   /etc/nginx/sites-available/default
+RUN pecl install mongo
+RUN echo "extension=mongo.so" >> /etc/php5/fpm/php.ini
+
 ADD .               /var/www
 WORKDIR             /var/www
 USER www-data
@@ -21,4 +16,6 @@ EXPOSE 80
 
 # Clean up APT when done.
 USER root
+ADD vhost   /etc/nginx/sites-available/default
+#RUN /etc/init.d/nginx restart
 RUN apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
